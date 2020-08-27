@@ -39,6 +39,43 @@ namespace RealTimePPDisplayer.Formatter
             return 0;
         }
 
+        private static List<BeatPerformance> GetBpWithCurrentPP(List<BeatPerformance> bps, double weightedPP, int? mapID)
+        {
+            List<BeatPerformance> tempBps = bps;
+            foreach (BeatPerformance bP in tempBps)
+            {
+                if (bP.BeatmapID == ((int) mapID))
+                {
+                    tempBps.Remove(bP);
+                }
+            }
+
+            BeatPerformance currMapBP = new BeatPerformance();
+            currMapBP.PP = weightedPP;
+            currMapBP.BeatmapID = (int) mapID;
+            tempBps.Add(currMapBP);
+            tempBps.Sort(CompareBP);
+
+            return tempBps;
+        }
+
+        private static double GetTotalPPFromBP(List<BeatPerformance> bps)
+        {
+            double tempPP = 0;
+            foreach (BeatPerformance bp in bps)
+            {
+                tempPP += bp.PP;
+            }
+            return tempPP;
+        }
+
+        private static int CompareBP(BeatPerformance x, BeatPerformance y)
+        {
+            if (x.PP < y.PP) return -1;
+            if (x.PP > y.PP) return 1;
+            return 0;
+        }
+
         private void GetBpFromOsu()
         {
             if (bps_locked == 0)
@@ -63,10 +100,15 @@ namespace RealTimePPDisplayer.Formatter
                 return;
             }
 
+            double totalCurrentPP = GetTotalPPFromBP(bps);
             int rtbp = FindBpIndex(bps, Displayer.Pp.RealTimePP);
             int fcbp = FindBpIndex(bps, Displayer.Pp.FullComboPP);
             double rtpp_weight = GetWeight(rtbp);
             double fcpp_weight = GetWeight(fcbp);
+            List<BeatPerformance> bpWithRTPP = GetBpWithCurrentPP(bps, Displayer.Pp.RealTimePP * rtpp_weight, Displayer.Id);
+            List<BeatPerformance> bpWithFCPP = GetBpWithCurrentPP(bps, Displayer.Pp.FullComboPP * fcpp_weight, Displayer.Id);
+            double totalRTPP = GetTotalPPFromBP(bpWithRTPP);
+            double totalFCPP = GetTotalPPFromBP(bpWithFCPP);
 
             if (rtbp != -1)
             {
@@ -84,6 +126,10 @@ namespace RealTimePPDisplayer.Formatter
             }
             Context.Variables["rtpp_weight"] = rtpp_weight;
             Context.Variables["fcpp_weight"] = rtpp_weight;
+
+            Context.Variables["totalpp"] = totalCurrentPP;
+            Context.Variables["ppaddrt"] = totalRTPP - totalCurrentPP;
+            Context.Variables["ppaddfc"] = totalFCPP - totalCurrentPP;
         }
 
         public override string GetFormattedString()
