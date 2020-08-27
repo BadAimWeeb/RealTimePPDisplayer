@@ -64,9 +64,11 @@ namespace RealTimePPDisplayer.Formatter
         private static double GetTotalPPFromBP(List<BeatPerformance> bps)
         {
             double tempPP = 0;
+            int i = 0;
             foreach (BeatPerformance bp in bps)
             {
-                tempPP += bp.PP;
+                tempPP += bp.PP * GetWeight(i);
+                i++;
             }
             return tempPP;
         }
