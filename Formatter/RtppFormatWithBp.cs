@@ -42,17 +42,19 @@ namespace RealTimePPDisplayer.Formatter
         private static List<BeatPerformance> GetBpWithCurrentPP(List<BeatPerformance> bps, double weightedPP, int? mapID)
         {
             List<BeatPerformance> tempBps = bps;
-            foreach (BeatPerformance bP in tempBps)
+            if (mapID.HasValue)
             {
-                if (bP.BeatmapID == ((int) mapID))
+                foreach (BeatPerformance bP in tempBps)
                 {
-                    tempBps.Remove(bP);
+                    if (bP.BeatmapID == mapID.Value)
+                    {
+                        tempBps.Remove(bP);
+                    }
                 }
             }
-
             BeatPerformance currMapBP = new BeatPerformance();
             currMapBP.PP = weightedPP;
-            currMapBP.BeatmapID = (int) mapID;
+            currMapBP.BeatmapID = mapID.HasValue ? mapID.Value : 0;
             tempBps.Add(currMapBP);
             tempBps.Sort(CompareBP);
 
