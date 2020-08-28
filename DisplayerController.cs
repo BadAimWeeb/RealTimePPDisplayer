@@ -269,6 +269,7 @@ namespace RealTimePPDisplayer
             beatmapTuple.ObjectsCount = objectsCount;
             beatmapTuple.RealTimeStars = cal.RealTimeStars;
             beatmapTuple.Stars = cal.Stars;
+            beatmapTuple.BeatmapID = cal.Beatmap.OrtdpBeatmap.BeatmapID;
 
             if (_maxCombo > (fullCombo == 0 ? 20000 : fullCombo)) _maxCombo = 0;
 

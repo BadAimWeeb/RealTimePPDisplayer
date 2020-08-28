@@ -155,7 +155,7 @@ namespace RealTimePPDisplayer.Formatter
             if (!playedBefore && bonusPP < 416.6667)
             {
                 int scoreCount = (int)Math.Round(Math.Log10(-(bonusPP / 416.6667D) + 1.0D) / Math.Log10(0.9994D));
-                bonusPPAfterPlay = 416.6667 * (1 - Math.Pow(0.994, ++scoreCount));
+                bonusPPAfterPlay = 416.6667 * (1 - Math.Pow(0.9994, ++scoreCount));
             }
             int rtbp = FindBpIndex(bps, Displayer.Pp.RealTimePP, Displayer.BeatmapTuple.BeatmapID);
             int fcbp = FindBpIndex(bps, Displayer.Pp.FullComboPP, Displayer.BeatmapTuple.BeatmapID);
