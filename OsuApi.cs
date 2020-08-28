@@ -1,7 +1,9 @@
-﻿using OsuRTDataProvider.Listen;
+﻿using Newtonsoft.Json.Linq;
+using OsuRTDataProvider.Listen;
 using OsuRTDataProvider.Mods;
 using RealTimePPDisplayer.Warpper;
 using Sync;
+using Sync.Tools;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -32,6 +34,31 @@ namespace RealTimePPDisplayer
         public DateTime Date;
         public string Rank;
         public double PP;
+    }
+
+    public class UserInfo
+    {
+        public string UserID;
+        public string Username;
+        public string JoinDate;
+        public uint Count50;
+        public uint Count100;
+        public uint Count300;
+        public uint PlayCount;
+        public string RankedScore;
+        public string TotalScore;
+        public uint PPRank;
+        public double TotalPP;
+        public double Level;
+        public double Accuracy;
+        public uint CountSS;
+        public uint CountSSH;
+        public uint CountS;
+        public uint CountSH;
+        public uint CountA;
+        public string Country;
+        public string TotalSecondsPlayed;
+        public uint PPRankCountry;
     }
 
     static class OsuApi
@@ -112,6 +139,67 @@ namespace RealTimePPDisplayer
             }
             
             result.Sort((a, b) => b.PP.CompareTo(a.PP));
+            return result;
+        }
+
+        public static UserInfo GetPlayerInfo(string player, OsuPlayMode mode)
+        {
+            HttpWebRequest req;
+            if (Setting.ByCuteSyncProxy)
+            {
+                return null;
+            }
+            else
+            {
+                req = (HttpWebRequest)WebRequest.Create($"https://osu.ppy.sh/api/get_user?k={Setting.ApiKey}&u={player}&type=string&m={(uint)mode}");
+            }
+
+            req.Timeout = 5000;
+            UserInfo result = new UserInfo();
+            Stream stream = null;
+            try
+            {
+                HttpWebResponse resp = (HttpWebResponse)req.GetResponse();
+                stream = resp.GetResponseStream();
+                using (StreamReader sr = new StreamReader(stream))
+                {
+                    var json = sr.ReadToEnd();
+                    JArray jObject = JArray.Parse(json);
+
+                    JToken obj = jObject[0];                    
+                    result.Accuracy = double.Parse(obj["accuracy"].Value<string>());
+                    result.Count50 = uint.Parse(obj["count50"].Value<string>());
+                    result.Count100 = uint.Parse(obj["count100"].Value<string>());
+                    result.Count300 = uint.Parse(obj["count300"].Value<string>());
+                    result.CountA = uint.Parse(obj["count_rank_a"].Value<string>());
+                    result.CountS = uint.Parse(obj["count_rank_s"].Value<string>());
+                    result.CountSH = uint.Parse(obj["count_rank_sh"].Value<string>());
+                    result.CountSS = uint.Parse(obj["count_rank_ss"].Value<string>());
+                    result.CountSSH = uint.Parse(obj["count_rank_ssh"].Value<string>());
+                    result.Country = obj["country"].Value<string>();
+                    result.JoinDate = obj["join_date"].Value<string>();
+                    result.Level = double.Parse(obj["level"].Value<string>());
+                    result.PlayCount = uint.Parse(obj["playcount"].Value<string>());
+                    result.PPRank = uint.Parse(obj["pp_rank"].Value<string>());
+                    result.PPRankCountry = uint.Parse(obj["pp_country_rank"].Value<string>());
+                    result.RankedScore = obj["ranked_score"].Value<string>();
+                    result.TotalScore = obj["total_score"].Value<string>();
+                    result.TotalSecondsPlayed = obj["total_seconds_played"].Value<string>();
+                    result.UserID = obj["user_id"].Value<string>();
+                    result.Username = obj["username"].Value<string>();
+                    result.TotalPP = double.Parse(obj["pp_raw"].Value<string>());
+                }
+            }
+            catch (Exception e)
+            {
+                IO.CurrentIO.WriteColor(e.ToString(), ConsoleColor.Red);
+                return null;
+            }
+            finally
+            {
+                stream?.Close();
+            }
+
             return result;
         }
     }

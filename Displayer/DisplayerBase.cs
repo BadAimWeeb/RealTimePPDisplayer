@@ -12,6 +12,7 @@ namespace RealTimePPDisplayer.Displayer
 {
     public struct BeatmapTuple
     {
+        public int BeatmapID;
         public int ObjectsCount;
         public double Duration;
         public double Stars;
