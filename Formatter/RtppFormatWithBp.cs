@@ -58,7 +58,7 @@ namespace RealTimePPDisplayer.Formatter
             return 0;
         }
 
-        private static List<BeatPerformance> GetBpWithCurrentPP(List<BeatPerformance> bps, double pp, double weight, int? mapID)
+        private static List<BeatPerformance> GetBpWithCurrentPP(List<BeatPerformance> bps, double pp, int? mapID)
         {
             List<BeatPerformance> tempBps = new List<BeatPerformance>(bps);
             if (mapID.HasValue)
@@ -71,7 +71,7 @@ namespace RealTimePPDisplayer.Formatter
                         {
                             tempBps.Remove(bP);
                             BeatPerformance currMapBP = new BeatPerformance();
-                            currMapBP.PP = pp * weight;
+                            currMapBP.PP = pp;
                             currMapBP.BeatmapID = mapID.HasValue ? mapID.Value : 0;
                             tempBps.Add(currMapBP);
                             tempBps.Sort(CompareBP);
@@ -161,8 +161,8 @@ namespace RealTimePPDisplayer.Formatter
             int fcbp = FindBpIndex(bps, Displayer.Pp.FullComboPP, Displayer.BeatmapTuple.BeatmapID);
             double rtpp_weight = GetWeight(rtbp);
             double fcpp_weight = GetWeight(fcbp);
-            List<BeatPerformance> bpWithRTPP = GetBpWithCurrentPP(bps, Displayer.Pp.RealTimePP, rtpp_weight, Displayer.BeatmapTuple.BeatmapID);
-            List<BeatPerformance> bpWithFCPP = GetBpWithCurrentPP(bps, Displayer.Pp.FullComboPP, fcpp_weight, Displayer.BeatmapTuple.BeatmapID);
+            List<BeatPerformance> bpWithRTPP = GetBpWithCurrentPP(bps, Displayer.Pp.RealTimePP, Displayer.BeatmapTuple.BeatmapID);
+            List<BeatPerformance> bpWithFCPP = GetBpWithCurrentPP(bps, Displayer.Pp.FullComboPP, Displayer.BeatmapTuple.BeatmapID);
             double totalRTPP = GetTotalPPFromBP(bpWithRTPP);
             double totalFCPP = GetTotalPPFromBP(bpWithFCPP);
 
